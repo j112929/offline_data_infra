@@ -5,47 +5,35 @@
 We use Apache Iceberg as the unifying storage layer.
 
 ### Why Iceberg?
-*   **Snapshots**: Every commit creates a snapshot. We can tag snapshots with Git commits of the feature generation code for full lineage.
+*   **Snapshots**: Every commit creates a snapshot.
 *   **Partitioning**: Hidden partitioning (e.g., by Day) allows efficient access for backfills.
-*   **Concurrent Writers**: Optimistic concurrency control allows backfills to run while streaming jobs might be appending (if designed carefully).
+*   **Branching & Tagging**: Enables sophisticated lifecycles like WAP (Write-Audit-Publish).
 
-## 2. Feature Backfill Strategy
+## 2. Feature Backfill Strategy (WAP Implemented)
 
-### Idempotency
-Backfills are operationally idempotent.
-*   **Granularity**: Partition-level (e.g., `date`).
-*   **Mode**: `overwrite_partitions (dynamic)`.
+We have implemented the **Write-Audit-Publish (WAP)** pattern to ensure zero dirty data in production.
 
-When a backfill job runs for `2023-01-01` to `2023-01-05`:
-1.  Spark computes the dataframe.
-2.  Iceberg detects involved partitions.
-3.  Atomic swap of the new data for those partitions.
+### Workflow
+1.  **Branch Creation**: `audit_<run_id>` branch created.
+2.  **Write Isolation**: Data written to branch only.
+3.  **Automated Audit**: Validation runs on branch.
+4.  **Publish**: `fast_forward` main to branch if valid.
 
-### Versioning & Time Travel
-To reproduce a model training set from 3 months ago:
-```sql
-SELECT * FROM features 
-FOR SYSTEM_VERSION AS OF '2023-06-01 12:00:00'
-WHERE date BETWEEN '2023-01-01' AND '2023-06-01'
-```
-This guarantees that even if we fixed a bug in the feature logic *today*, we can still retrieve the *exact* data used for the old model version.
+### Versioning & Lineage
+*   Metadata: Code Git Hash + Run ID injected into every Snapshot.
+*   Time Travel SQL: `SELECT * FROM table FOR SYSTEM_VERSION AS OF ...`
 
-## 3. Batch-Stream Consistency
+## 3. Serving Layer (Batch-Stream Consistency)
+*   **Incremental Sync**: `OnlineSyncJob` reads Iceberg delta (`start-snapshot-id`) and upserts to Redis.
+*   **Consistency**: Unified source of truth is the Iceberg table validated snapshots.
 
-To ensure the Online Store (Redis) matches the Offline Store (Iceberg):
-1.  **Single Logic Source**: The `FeatureGroup.compute` method (in `src/features`) is the source of truth.
-2.  **Streaming**:
-    *   Ideally, use Flink/Spark Streaming to run the *same* logic.
-    *   Sink to Online Store (Hot) AND Iceberg (Cold).
-3.  **Lambda Architecture (Simplified)**:
-    *   Stream writes to Online Store + Iceberg (Raw Events).
-    *   Periodic Batch (Hourly/Daily) compacts and corrects Iceberg data.
-    *   **consistency check**: Compare Online Store values against Iceberg table for a sample set of keys.
+## 4. Maintenance & Operations
+To prevent performance degradation over time:
+*   **Compaction**: `rewrite_data_files` merges small files (created by frequent streaming or incremental writes) into larger, read-optimized files.
+*   **Expiration**: `expire_snapshots` removes history older than N days (default 7) to reclaim storage and keep metadata manageable.
+*   **Orphan Cleanup**: `remove_orphan_files` deletes data files no longer referenced by any valid metadata.
 
-## 4. Validation
-
-We implement "Write-Audit-Publish" (WAP) validation.
-1.  **Write**: Backfill job writes data to a *staging branch* or a non-live snapshot.
-2.  **Audit**: Validation tool queries the staging snapshot. checks distribution.
-3.  **Publish**: If valid, fast-forward the `main` branch to the staging snapshot. 
-    *   *Note: In the simplified code, we validate DataFrame before write, which is simpler but less robust against write-failures.*
+## 5. Directory Structure
+*   `src/jobs/backfill_job.py`: Main WAP engine.
+*   `src/jobs/online_sync_job.py`: Pushes to Serving Store.
+*   `src/jobs/maintenance_job.py`: Optimization & Cleanup.

@@ -1,69 +1,94 @@
 # Offline Feature Backfill Platform (Lakehouse Architecture)
 
-This project implements an Offline Feature Backfill Platform using **Apache Iceberg** and **Apache Spark**.
+A production-ready Offline Feature Platform built on **Apache Iceberg** and **Spark**, featuring **Time-Travel**, **WAP (Write-Audit-Publish)** governance, and **Batch-Stream Consistency**.
 
-## Core Objectives
+![Architecture Diagram](lakehouse_architecture_diagram.png)
 
-1.  **History Reproducibility (Time Travel)**: Leverage Iceberg's snapshot mechanism to query data `AS OF` significant points in time, ensuring models can be retrained on exact historical states.
-2.  **Data Version Governance**: Manage feature processing code versions alongside data versions (Iceberg snapshots).
-3.  **Batch-Stream Consistency**: Ensure that offline backfills (Batch) and online serving (Stream) use unified feature definitions (Feature Store methodology).
+## 🚀 Core Features
 
-## Architecture
+### 1. 🛡️ Data Governance & Quality (WAP)
+Zero dirty data in production. We use the **Write-Audit-Publish** pattern:
+*   **Write**: Backfill jobs write to an isolated `audit` branch.
+*   **Audit**: Automated validation checks data distribution and null rates on the branch.
+*   **Publish**: Only if validation passes, the data is atomically "fast-forwarded" to `main`.
+
+### 2. 🕰️ Reproducibility (Time Travel + Lineage)
+Every row is traceable to the exact code that produced it.
+*   **Code-Data Binding**: Every Iceberg snapshot includes the **Git Commit Hash** and **Run ID** in its metadata.
+*   **Time Travel**: Query data exactly as it existed at any point in the past.
+    ```sql
+    SELECT * FROM features FOR SYSTEM_VERSION AS OF '2023-01-01 10:00:00'
+    ```
+
+### 3. ⚡️ Batch-Stream Consistency
+*   **Single Source of Truth**: Iceberg serves as the master store for historical feature correctness.
+*   **Incremental Sync**: `OnlineSyncJob` reads validated deltas from Iceberg and upserts them to the Online Store (Redis), ensuring serving data matches offline training data.
+
+## 🏗️ Architecture
 
 ```mermaid
 graph LR
-    Raw[Raw Events] -->|Spark Batch| IcebergTable[Iceberg Feature Table]
-    IcebergTable -->|Validation| QualityCheck[Data Quality Check]
-    QualityCheck -->|Pass| Training[Model Training]
+    Raw[Raw Events] -->|Spark Batch| Branch[Audit Branch]
+    Branch -->|Validator| Decision{Pass?}
+    Decision -->|Yes| Main[Main Table]
+    Decision -->|No| Alert[Alert & Drop]
+    Main -->|Incremental Read| OnlineSync[Online Sync Job]
+    OnlineSync -->|Upsert| Redis[(Redis / Online Store)]
     
     subgraph "Lakehouse (Iceberg)"
-        IcebergTable
-        Versions[Snapshots / History]
+        Main
+        Branch
+        Snapshots[History & Lineage]
     end
-    
-    subgraph "Backfill Engine"
-        Job[Spark Backfill Job]
-        Config[Backfill Config (TimeRange)]
-    end
-    
-    Config --> Job
-    Job --> IcebergTable
 ```
 
-## implementation Details
-
-### 1. Technology Stack
-*   **Storage**: Apache Iceberg (Supports ACID, Time Travel, Schema Evolution).
-*   **Compute**: Apache Spark (PySpark).
-*   **Validation**: PySpark DataFrame checks (extensible to Great Expectations).
-
-### 2. Key Flows
-
-#### Backfill Flow
-1.  **Configuration**: User defines the feature logic and the target time range (e.g., `2023-01-01` to `2023-12-31`).
-2.  **Execution**: Spark job computes features from Raw Data.
-3.  **Write Strategy**: Uses `WAP` (Write-Audit-Publish) pattern or `merge_into` / `overwrite_partitions` to safely update the Iceberg table without affecting concurrent readers.
-4.  **Versioning**: A new Iceberg snapshot is committed.
-
-#### Validation Flow
-BEFORE exposing new data for training:
-1.  Check for `null` rates.
-2.  Check for distribution shifts (basic statistical summary).
-3.  Ensure primary key uniqueness.
-
-## Directory Structure
+## 📂 Project Structure
 
 ```
 offline_data_infra/
-├── docs/               # Architecture diagrams and detailed docs
 ├── src/
-│   ├── jobs/           # Spark jobs for backfill
-│   ├── features/       # Feature extraction logic
-│   └── validation/     # Data quality checks
-├── tests/              # Unit and Integration tests
-└── requirements.txt    # Python dependencies
+│   ├── jobs/
+│   │   ├── backfill_job.py    # Main WAP Engine (Compute -> Validate -> Commit)
+│   │   ├── online_sync_job.py # Pushes validated features to Redis
+│   │   └── maintenance_job.py # Compaction & Snapshot Expiration
+│   ├── features/              # Feature logic definitions
+│   └── validation/            # Data quality checks
+├── docs/                      # Detailed Architecture Documentation
+└── notebook/                  # Exploration notebooks
 ```
 
-## Getting Started
+## 🚦 Quick Start
 
-*(Instructions to set up local user environment for Spark + Iceberg)*
+### Prerequisites
+*   Java 8, 11, or 17 (Required for Spark)
+*   Python 3.8+
+
+### 1. Installation
+```bash
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 2. Run Backfill (The "Compute" Phase)
+This runs the full **WAP** lifecycle: Generates mock data, writes to a branch, validates, and publishes if safe.
+```bash
+./run_backfill.sh --start_date 2023-01-01 --end_date 2023-01-02
+```
+
+### 3. Sync to Online Store (The "Serve" Phase)
+Incrementally pushes the new offline features to the online serving layer (mock Redis).
+```bash
+./run_sync.sh
+```
+
+### 4. Maintenance (The "Optimize" Phase)
+Keep the Lakehouse fast by compacting small files and expiring old history.
+```bash
+./run_maintenance.sh --days 7
+```
+
+## 📖 Documentation
+See [Architecture Guide](docs/architecture.md) for deep dives into:
+*   Iceberg Branching Strategies
+*   Snapshot isolation mechanics
+*   Schema evolution rules
