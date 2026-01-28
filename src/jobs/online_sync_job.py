@@ -58,7 +58,7 @@ def run_online_sync(table_name):
     # if not explicitly querying metadata.
     # Safe approach: Query the table history and pick the latest one processed.
     
-    latest_history = spark.sql(f"SELECT snapshot_id FROM {table_name}.history ORDER BY committed_at DESC LIMIT 1").collect()
+    latest_history = spark.sql(f"SELECT snapshot_id FROM {table_name}.snapshots ORDER BY committed_at DESC LIMIT 1").collect()
     if not latest_history:
         print("Table is empty. Nothing to sync.")
         return

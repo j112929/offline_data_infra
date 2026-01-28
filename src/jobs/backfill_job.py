@@ -109,16 +109,28 @@ def run_backfill(start_date, end_date):
             logger.info("Successfully Published to Main!")
             
         except Exception as e:
-            logger.error(f"Fast Forward failed: {e}. Attempting manual cherry-pick logic or user intervention required.")
-            raise e
+            logger.warning(f"Fast Forward failed: {e}. Attempting fallback via cherrypick_snapshot...")
+            try:
+                # Fallback: Get snapshot ID of the audit branch
+                # Spark 3.4+ Iceberg table.refs
+                branch_info = spark.sql(f"SELECT snapshot_id FROM {table_name}.refs WHERE name = '{audit_branch}'").collect()
+                if branch_info:
+                    snap_id = branch_info[0]['snapshot_id']
+                    logger.info(f"Cherry-picking snapshot {snap_id} from {audit_branch}...")
+                    spark.sql(f"CALL local.system.cherrypick_snapshot('{table_name}', {snap_id})")
+                    logger.info("Successfully Published via Cherry-Pick!")
+                else:
+                    raise ValueError(f"Could not find snapshot for branch {audit_branch}")
+            except Exception as e2:
+                logger.error(f"Publish failed completely: {e2}")
+                raise e2
             
     else:
         logger.error("Validation FAILED. Data remains in audit branch for debugging. Main branch is untouched.")
         raise ValueError("Data Quality Validation Failed.")
 
-    # --- 6. Show History with Lineage ---
     logger.info("History including Code Lineage:")
-    spark.sql(f"SELECT committed_at, snapshot_id, summary['spark.snapshot-property.code-version'] as git_hash, summary['spark.snapshot-property.run-id'] as run_id FROM {table_name}.history").show(truncate=False)
+    spark.sql(f"SELECT committed_at, snapshot_id, summary['spark.snapshot-property.code-version'] as git_hash, summary['spark.snapshot-property.run-id'] as run_id FROM {table_name}.snapshots ORDER BY committed_at DESC").show(truncate=False)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

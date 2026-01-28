@@ -1,0 +1,84 @@
+{
+  "format-version" : 2,
+  "table-uuid" : "8a8390c4-64aa-492d-9c34-9f399a0e605c",
+  "location" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily",
+  "last-sequence-number" : 1,
+  "last-updated-ms" : 1769565120409,
+  "last-column-id" : 4,
+  "current-schema-id" : 0,
+  "schemas" : [ {
+    "type" : "struct",
+    "schema-id" : 0,
+    "fields" : [ {
+      "id" : 1,
+      "name" : "user_id",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 2,
+      "name" : "date",
+      "required" : false,
+      "type" : "date"
+    }, {
+      "id" : 3,
+      "name" : "event_count",
+      "required" : false,
+      "type" : "long"
+    }, {
+      "id" : 4,
+      "name" : "total_value",
+      "required" : false,
+      "type" : "double"
+    } ]
+  } ],
+  "default-spec-id" : 0,
+  "partition-specs" : [ {
+    "spec-id" : 0,
+    "fields" : [ ]
+  } ],
+  "last-partition-id" : 999,
+  "default-sort-order-id" : 0,
+  "sort-orders" : [ {
+    "order-id" : 0,
+    "fields" : [ ]
+  } ],
+  "properties" : {
+    "owner" : "jizhuolin",
+    "write.parquet.compression-codec" : "zstd"
+  },
+  "current-snapshot-id" : -1,
+  "refs" : {
+    "audit_9120d41c" : {
+      "snapshot-id" : 7924133851448394759,
+      "type" : "branch"
+    }
+  },
+  "snapshots" : [ {
+    "sequence-number" : 1,
+    "snapshot-id" : 7924133851448394759,
+    "timestamp-ms" : 1769565120409,
+    "summary" : {
+      "operation" : "append",
+      "changed-partition-count" : "0",
+      "total-records" : "0",
+      "total-files-size" : "0",
+      "total-data-files" : "0",
+      "total-delete-files" : "0",
+      "total-position-deletes" : "0",
+      "total-equality-deletes" : "0",
+      "engine-version" : "3.5.0",
+      "app-id" : "local-1769565118241",
+      "engine-name" : "spark",
+      "iceberg-version" : "Apache Iceberg 1.6.1 (commit 8e9d59d299be42b0bca9461457cd1e95dbaad086)"
+    },
+    "manifest-list" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily/metadata/snap-7924133851448394759-1-f950fccf-11c5-43c8-8423-7108d725abf5.avro",
+    "schema-id" : 0
+  } ],
+  "statistics" : [ ],
+  "partition-statistics" : [ ],
+  "snapshot-log" : [ ],
+  "metadata-log" : [ {
+    "timestamp-ms" : 1769565119973,
+    "metadata-file" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily/metadata/v1.metadata.json"
+  } ]
+}

@@ -1,0 +1,201 @@
+{
+  "format-version" : 2,
+  "table-uuid" : "8a8390c4-64aa-492d-9c34-9f399a0e605c",
+  "location" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily",
+  "last-sequence-number" : 5,
+  "last-updated-ms" : 1769565314718,
+  "last-column-id" : 4,
+  "current-schema-id" : 0,
+  "schemas" : [ {
+    "type" : "struct",
+    "schema-id" : 0,
+    "fields" : [ {
+      "id" : 1,
+      "name" : "user_id",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 2,
+      "name" : "date",
+      "required" : false,
+      "type" : "date"
+    }, {
+      "id" : 3,
+      "name" : "event_count",
+      "required" : false,
+      "type" : "long"
+    }, {
+      "id" : 4,
+      "name" : "total_value",
+      "required" : false,
+      "type" : "double"
+    } ]
+  } ],
+  "default-spec-id" : 0,
+  "partition-specs" : [ {
+    "spec-id" : 0,
+    "fields" : [ ]
+  } ],
+  "last-partition-id" : 999,
+  "default-sort-order-id" : 0,
+  "sort-orders" : [ {
+    "order-id" : 0,
+    "fields" : [ ]
+  } ],
+  "properties" : {
+    "owner" : "jizhuolin",
+    "write.parquet.compression-codec" : "zstd"
+  },
+  "current-snapshot-id" : 1596714567845578404,
+  "refs" : {
+    "audit_cc888c4a" : {
+      "snapshot-id" : 2083560556180786945,
+      "type" : "branch"
+    },
+    "main" : {
+      "snapshot-id" : 1596714567845578404,
+      "type" : "branch"
+    },
+    "audit_9120d41c" : {
+      "snapshot-id" : 820053006461437928,
+      "type" : "branch"
+    }
+  },
+  "snapshots" : [ {
+    "sequence-number" : 1,
+    "snapshot-id" : 7924133851448394759,
+    "timestamp-ms" : 1769565120409,
+    "summary" : {
+      "operation" : "append",
+      "changed-partition-count" : "0",
+      "total-records" : "0",
+      "total-files-size" : "0",
+      "total-data-files" : "0",
+      "total-delete-files" : "0",
+      "total-position-deletes" : "0",
+      "total-equality-deletes" : "0",
+      "engine-version" : "3.5.0",
+      "app-id" : "local-1769565118241",
+      "engine-name" : "spark",
+      "iceberg-version" : "Apache Iceberg 1.6.1 (commit 8e9d59d299be42b0bca9461457cd1e95dbaad086)"
+    },
+    "manifest-list" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily/metadata/snap-7924133851448394759-1-f950fccf-11c5-43c8-8423-7108d725abf5.avro",
+    "schema-id" : 0
+  }, {
+    "sequence-number" : 2,
+    "snapshot-id" : 820053006461437928,
+    "parent-snapshot-id" : 7924133851448394759,
+    "timestamp-ms" : 1769565122335,
+    "summary" : {
+      "operation" : "append",
+      "spark.app.id" : "local-1769565118241",
+      "added-data-files" : "1",
+      "added-records" : "4",
+      "added-files-size" : "1372",
+      "changed-partition-count" : "1",
+      "total-records" : "4",
+      "total-files-size" : "1372",
+      "total-data-files" : "1",
+      "total-delete-files" : "0",
+      "total-position-deletes" : "0",
+      "total-equality-deletes" : "0",
+      "engine-version" : "3.5.0",
+      "app-id" : "local-1769565118241",
+      "engine-name" : "spark",
+      "iceberg-version" : "Apache Iceberg 1.6.1 (commit 8e9d59d299be42b0bca9461457cd1e95dbaad086)"
+    },
+    "manifest-list" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily/metadata/snap-820053006461437928-1-0946b8fa-fcbe-4acb-91a5-11d2f236f703.avro",
+    "schema-id" : 0
+  }, {
+    "sequence-number" : 3,
+    "snapshot-id" : 5237335012425787615,
+    "timestamp-ms" : 1769565312281,
+    "summary" : {
+      "operation" : "append",
+      "changed-partition-count" : "0",
+      "total-records" : "0",
+      "total-files-size" : "0",
+      "total-data-files" : "0",
+      "total-delete-files" : "0",
+      "total-position-deletes" : "0",
+      "total-equality-deletes" : "0",
+      "engine-version" : "3.5.0",
+      "app-id" : "local-1769565310379",
+      "engine-name" : "spark",
+      "iceberg-version" : "Apache Iceberg 1.6.1 (commit 8e9d59d299be42b0bca9461457cd1e95dbaad086)"
+    },
+    "manifest-list" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily/metadata/snap-5237335012425787615-1-1f3eee58-4f93-48a1-9f6a-dd7cd977be8b.avro",
+    "schema-id" : 0
+  }, {
+    "sequence-number" : 4,
+    "snapshot-id" : 2083560556180786945,
+    "parent-snapshot-id" : 5237335012425787615,
+    "timestamp-ms" : 1769565314239,
+    "summary" : {
+      "operation" : "append",
+      "spark.app.id" : "local-1769565310379",
+      "added-data-files" : "1",
+      "added-records" : "4",
+      "added-files-size" : "1372",
+      "changed-partition-count" : "1",
+      "total-records" : "4",
+      "total-files-size" : "1372",
+      "total-data-files" : "1",
+      "total-delete-files" : "0",
+      "total-position-deletes" : "0",
+      "total-equality-deletes" : "0",
+      "engine-version" : "3.5.0",
+      "app-id" : "local-1769565310379",
+      "engine-name" : "spark",
+      "iceberg-version" : "Apache Iceberg 1.6.1 (commit 8e9d59d299be42b0bca9461457cd1e95dbaad086)"
+    },
+    "manifest-list" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily/metadata/snap-2083560556180786945-1-f7e5230d-1540-4957-a15e-cbd9fc2d62ad.avro",
+    "schema-id" : 0
+  }, {
+    "sequence-number" : 5,
+    "snapshot-id" : 1596714567845578404,
+    "timestamp-ms" : 1769565314718,
+    "summary" : {
+      "operation" : "append",
+      "source-snapshot-id" : "2083560556180786945",
+      "added-data-files" : "1",
+      "added-records" : "4",
+      "added-files-size" : "1372",
+      "changed-partition-count" : "1",
+      "total-records" : "4",
+      "total-files-size" : "1372",
+      "total-data-files" : "1",
+      "total-delete-files" : "0",
+      "total-position-deletes" : "0",
+      "total-equality-deletes" : "0",
+      "engine-version" : "3.5.0",
+      "app-id" : "local-1769565310379",
+      "engine-name" : "spark",
+      "iceberg-version" : "Apache Iceberg 1.6.1 (commit 8e9d59d299be42b0bca9461457cd1e95dbaad086)"
+    },
+    "manifest-list" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily/metadata/snap-1596714567845578404-1-670c87a7-3ef6-49eb-9106-15b1ac712fe9.avro",
+    "schema-id" : 0
+  } ],
+  "statistics" : [ ],
+  "partition-statistics" : [ ],
+  "snapshot-log" : [ {
+    "timestamp-ms" : 1769565314718,
+    "snapshot-id" : 1596714567845578404
+  } ],
+  "metadata-log" : [ {
+    "timestamp-ms" : 1769565119973,
+    "metadata-file" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily/metadata/v1.metadata.json"
+  }, {
+    "timestamp-ms" : 1769565120409,
+    "metadata-file" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily/metadata/v2.metadata.json"
+  }, {
+    "timestamp-ms" : 1769565122335,
+    "metadata-file" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily/metadata/v3.metadata.json"
+  }, {
+    "timestamp-ms" : 1769565312281,
+    "metadata-file" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily/metadata/v4.metadata.json"
+  }, {
+    "timestamp-ms" : 1769565314239,
+    "metadata-file" : "/Users/jizhuolin/Documents/GitHub/offline_data_infra/warehouse/default/user_features_daily/metadata/v5.metadata.json"
+  } ]
+}

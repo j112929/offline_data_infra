@@ -2,6 +2,17 @@
 
 # Check for Java
 if ! command -v java &> /dev/null; then
+    # Helper for Mac/Brew users
+    if [ -d "/opt/homebrew/opt/openjdk@11" ]; then
+        export JAVA_HOME="/opt/homebrew/opt/openjdk@11"
+        export PATH="$JAVA_HOME/bin:$PATH"
+    elif [ -d "/usr/local/opt/openjdk@11" ]; then
+         export JAVA_HOME="/usr/local/opt/openjdk@11"
+         export PATH="$JAVA_HOME/bin:$PATH"
+    fi
+fi
+
+if ! command -v java &> /dev/null; then
     echo "Error: Java is not installed or not in PATH."
     echo "Please install Java 8, 11, or 17 to run Spark."
     exit 1
